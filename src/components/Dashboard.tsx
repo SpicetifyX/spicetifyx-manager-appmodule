@@ -1,11 +1,85 @@
-import React from "react";
-import { FaCheckCircle, FaPuzzlePiece, FaPalette, FaAppStore, FaChevronRight } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaSync, FaCheckCircle, FaExclamationTriangle, FaPuzzlePiece, FaPalette, FaAppStore, FaChevronRight, FaRocket } from "react-icons/fa";
+import { get } from "../utils/api";
+
+type InstallStatus = {
+  spotify: boolean;
+  spicetify: boolean;
+  patched: boolean;
+};
 
 export default function Dashboard({
   onNavigate,
 }: {
   onNavigate?: (tab: string) => void;
 }) {
+  const [installStatus, setInstallStatus] = useState<InstallStatus | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showReloadModal, setShowReloadModal] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
+
+  useEffect(() => {
+    async function fetchInstallStatus() {
+      try {
+        const status = await get("/checkInstallation");
+        setInstallStatus(status);
+      } catch (error) {
+        console.error("Failed to fetch installation status:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchInstallStatus();
+  }, []);
+
+
+  const handleReload = async () => {
+    setIsReloading(true);
+    try {
+      // await post("/reload");
+    } catch (err) {
+      console.error("Reload failed:", err);
+    } finally {
+      setIsReloading(false);
+    }
+  };
+
+  const extensions: any[] = [];
+  const themes: any[] = [];
+  const apps: any[] = [];
+  const spotifyVersion = "1.2.3";
+  const spicetifyVersion = "2.10.0";
+
+  const extensionsCount = extensions.length;
+  const activeExtensions = extensions.filter((ext) => ext.isEnabled).length;
+  const themesCount = themes.length;
+  const appsCount = apps.length;
+  const activeApps = apps.filter((a) => a.isEnabled).length;
+
+
+  if (loading) {
+    return (
+      <div className="flex w-full flex-1 items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2a2a2a] border-t-[#d63c6a]"></div>
+          <p className="text-sm text-[#a0a0a0]">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!installStatus) {
+    return (
+      <div className="flex w-full flex-1 items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <FaExclamationTriangle className="h-8 w-8 text-yellow-500" />
+          <p className="text-sm text-[#a0a0a0]">Could not connect to the backend.</p>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto bg-[#171b20] p-5">
       <div className="mb-5">
@@ -13,22 +87,46 @@ export default function Dashboard({
         <p className="mt-1 text-sm text-[#a0a0a0]">Overview of your Spicetify installation</p>
       </div>
 
-        <div className="flex flex-1 flex-col space-y-4">
-          <div className="overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#121418] px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                  <>
-                    <FaCheckCircle className="h-7 w-7 text-[#d63c6a]" />
-                    <div>
-                      <h2 className="text-xl font-bold text-white">Everything's Running</h2>
-                      <p className="text-sm text-[#a0a0a0]">Spicetify is active and patched</p>
-                    </div>
-                  </>
-              </div>
+      <div className="flex flex-1 flex-col space-y-4">
+        <div className="overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#121418] px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {installStatus.patched ? (
+                <>
+                  <FaCheckCircle className="h-7 w-7 text-[#d63c6a]" />
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Everything's Running</h2>
+                    <p className="text-sm text-[#a0a0a0]">Spicetify is active and patched</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <FaExclamationTriangle className="h-7 w-7 text-yellow-500" />
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Setup Required</h2>
+                    <p className="text-sm text-[#a0a0a0]">Spicetify needs to be installed</p>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowReloadModal(true)}
+                disabled={isReloading}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                  isReloading
+                    ? "cursor-not-allowed bg-[#1e2228] text-[#a0a0a0]"
+                    : "bg-[#1e2228] text-[#a0a0a0] hover:bg-[#2a2e34] hover:text-white active:scale-95"
+                  }`}
+              >
+                <FaRocket className={isReloading ? "animate-pulse" : ""} />
+                {isReloading ? "Reloading..." : "Reload"}
+              </button>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
             <button
               onClick={() => onNavigate?.("addons")}
               className="group relative flex flex-col overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#121418] p-2 text-left transition-all hover:border-[#d63c6a] hover:shadow-lg hover:shadow-[#d63c6a]/10 active:scale-[0.98]"
@@ -41,14 +139,14 @@ export default function Dashboard({
                 <FaChevronRight className="h-3 w-3 text-[#333] transition-colors group-hover:text-[#d63c6a]" />
               </div>
               <div className="mt-1.5 flex-1">
-                <p className="text-3xl font-bold text-white">-</p>
-                <p className="mt-1 text-sm text-[#a0a0a0]">- active</p>
+                <p className="text-3xl font-bold text-white">{extensionsCount}</p>
+                <p className="mt-1 text-sm text-[#a0a0a0]">{activeExtensions} active</p>
               </div>
               <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#2a2a2a]">
                 <div
                   className="h-full bg-[#d63c6a] transition-all duration-500"
                   style={{
-                    width: "100%",
+                    width: extensionsCount > 0 ? `${(activeExtensions / extensionsCount) * 100}%` : "0%",
                   }}
                 ></div>
               </div>
@@ -66,7 +164,7 @@ export default function Dashboard({
                 <FaChevronRight className="h-3 w-3 text-[#333] transition-colors group-hover:text-[#d63c6a]" />
               </div>
               <div className="mt-1.5 flex-1">
-                <p className="text-3xl font-bold text-white">-</p>
+                <p className="text-3xl font-bold text-white">{themesCount}</p>
                 <p className="mt-1 text-sm text-[#a0a0a0]">Available</p>
               </div>
               <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#2a2a2a]">
@@ -86,60 +184,104 @@ export default function Dashboard({
                 <FaChevronRight className="h-3 w-3 text-[#333] transition-colors group-hover:text-[#d63c6a]" />
               </div>
               <div className="mt-1.5 flex-1">
-                <p className="text-3xl font-bold text-white">-</p>
-                <p className="mt-1 text-sm text-[#a0a0a0]">- active</p>
+                <p className="text-3xl font-bold text-white">{appsCount}</p>
+                <p className="mt-1 text-sm text-[#a0a0a0]">{activeApps} active</p>
               </div>
               <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#2a2a2a]">
                 <div
                   className="h-full bg-[#d63c6a] transition-all duration-500"
                   style={{
-                    width: "100%",
+                    width: appsCount > 0 ? `${(activeApps / appsCount) * 100}%` : "0%",
                   }}
                 ></div>
               </div>
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg border border-[#2a2a2a] bg-[#121418] p-4 transition-all">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#d63c6a]">Spotify Client</p>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
-                  <span className="text-sm text-[#a0a0a0]">Status</span>
-                  <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <>
-                        <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                        Installed
-                      </>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
-                  <span className="text-sm text-[#a0a0a0]">Version</span>
-                  <span className="text-sm font-semibold text-white">-</span>
-                </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-lg border border-[#2a2a2a] bg-[#121418] p-4 transition-all">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#d63c6a]">Spotify Client</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
+                <span className="text-sm text-[#a0a0a0]">Status</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                  {installStatus.spotify ? (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                      Installed
+                    </>
+                  ) : (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                      Not Installed
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
+                <span className="text-sm text-[#a0a0a0]">Version</span>
+                <span className="text-sm font-semibold text-white">{spotifyVersion || "—"}</span>
               </div>
             </div>
+          </div>
 
-            <div className="rounded-lg border border-[#2a2a2a] bg-[#121418] p-4 transition-all">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#d63c6a]">Spicetify CLI</p>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
-                  <span className="text-sm text-[#a0a0a0]">Status</span>
-                  <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <>
-                        <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                        Installed
-                      </>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
-                  <span className="text-sm text-[#a0a0a0]">Version</span>
-                  <span className="text-sm font-semibold text-white">-</span>
-                </div>
+          <div className="rounded-lg border border-[#2a2a2a] bg-[#121418] p-4 transition-all">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#d63c6a]">Spicetify CLI</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
+                <span className="text-sm text-[#a0a0a0]">Status</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                  {installStatus.spicetify ? (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                      Installed
+                    </>
+                  ) : (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                      Not Installed
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f]/45 p-3">
+                <span className="text-sm text-[#a0a0a0]">Version</span>
+                <span className="text-sm font-semibold text-white">{spicetifyVersion || "—"}</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {showReloadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75">
+          <div className="flex w-full max-w-sm flex-col rounded-lg border border-[#2a2a2a] bg-[#121418] p-6 shadow-lg">
+            <div className="mb-4 flex flex-col items-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#1e2228]">
+                <FaRocket className="h-6 w-6 text-[#d63c6a]" />
+              </div>
+              <h2 className="mb-1 text-lg font-bold text-white">Reload Spicetify</h2>
+              <p className="text-center text-sm text-[#a0a0a0]">
+                This will run <span className="font-mono text-white">spicetify apply</span> to reload your current theme and extensions.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReloadModal(false)}
+                className="flex-1 rounded-md border border-[#2a2a2a] bg-transparent px-4 py-2.5 text-sm font-semibold text-[#a0a0a0] transition hover:bg-[#1e2228] hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setShowReloadModal(false); handleReload(); }}
+                className="flex-1 rounded-md bg-[#d63c6a] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#c52c5a] active:bg-[#b51c4a]"
+              >
+                Reload
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
