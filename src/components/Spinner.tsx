@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Spinner({ className }: { className?: string }) {
   return (
     <div className={`relative ${className || "h-5 w-5"}`}>
