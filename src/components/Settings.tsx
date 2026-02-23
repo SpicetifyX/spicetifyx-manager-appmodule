@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { FaDiscord, FaFolder, FaTrashAlt, FaExternalLinkAlt, FaGithub } from "react-icons/fa";
-// import * as backend from "../../wailsjs/go/app/App";
+import { get, post } from "../utils/api";
 
 interface AppSettings {
   discordRpc: boolean;
@@ -52,9 +52,9 @@ export default function Settings() {
   useEffect(() => {
     (async () => {
       try {
-        // const [fetched, version] = await Promise.all([backend.GetSettings(), backend.GetAppVersion()]);
-        // setSettings({ ...DEFAULTS, ...fetched });
-        // setAppVersion(version);
+        const [fetched, version] = await Promise.all([get("/settings"), get("/appVersion")]); // Assuming these endpoints exist
+        setSettings({ ...DEFAULTS, ...fetched });
+        setAppVersion(version.version);
       } catch (err) {
         console.error("Failed to load settings:", err);
       } finally {
@@ -66,7 +66,7 @@ export default function Settings() {
   const updateSetting = async <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     const updated = { ...settings, [key]: value };
     setSettings(updated);
-    // await backend.UpdateSettings({ [key]: value });
+    await post("/updateSettings", { [key]: value }); // Assuming an updateSettings endpoint
   };
 
   const handleClearCache = () => {
@@ -75,8 +75,8 @@ export default function Settings() {
     setTimeout(() => setCacheCleared(false), 2500);
   };
 
-  const handleOpenConfigFolder = () => {
-    // backend.OpenConfigFolder();
+  const handleOpenConfigFolder = async () => {
+    await post("/openConfigFolder", {}); // Assuming an openConfigFolder endpoint
   };
 
   const handleOpenDiscord = () => {
@@ -218,17 +218,16 @@ function ToggleSetting({
   return (
     <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f] p-3">
       <div className="mr-4">
-        <p className="text-sm font-medium text-white">{label}</p>
-        <p className="text-xs text-[#666]">{description}</p>
+        <p className="text-sm font-medium text-white">Change to the new code</p>
+        <p className="text-xs text-[#666]">Force re-fetch all community data on next browse</p>
       </div>
       <button
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-200 ${checked ? "bg-[#d63c6a]" : "bg-[#2a2a2a]"}`}
+        onClick={handleClearCache}
+        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${cacheCleared ? "bg-green-600 text-white" : "bg-[#2a2a2a] text-white hover:bg-[#3a3a3a] active:scale-95"
+          }`}
       >
-        <span
-          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"
-            }`}
-        />
+        <FaTrashAlt className="h-3 w-3" />
+        {cacheCleared ? "Cleared!" : "Clear Cache"}
       </button>
     </div>
   );
