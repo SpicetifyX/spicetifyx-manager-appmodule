@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 // import { ThemeInfo } from "../types/theme.d";
 import Spinner from "./Spinner";
@@ -117,7 +117,7 @@ export default function Theme({
                     className="fixed z-[9999] min-w-[140px] rounded-lg border border-[#2a2a2a] bg-[#161a1e] p-1 shadow-xl shadow-black/40"
                   >
                     <div className="custom-scrollbar max-h-48 overflow-y-auto">
-                      {schemes.map((scheme) => (
+                      {schemes.map((scheme: any) => (
                         <button
                           key={scheme}
                           onClick={async () => {
