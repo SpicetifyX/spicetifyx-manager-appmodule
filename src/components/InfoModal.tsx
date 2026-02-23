@@ -1,6 +1,6 @@
+import React from "react";
 import { FaTimes, FaStar, FaUser, FaTag, FaCalendar, FaDownload } from "react-icons/fa";
 import Spinner from "./Spinner";
-// import * as backend from "../../wailsjs/go/app/App";
 
 export interface InfoData {
   title: string;
