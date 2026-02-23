@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaAppStore, FaCog, FaFlag, FaHome, FaPalette, FaPuzzlePiece } from "react-icons/fa";
 
 export default function Topbar({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: (tab: string) => void }) {
+  useEffect(() => {
+    const el = document.querySelector(".main-topBar-container") as HTMLElement;
+    console.log(el);
+    if (el) {
+      el.style.position = "relative";
+      el.style.height = "0px";
+    }
+  }, []);
+
   return (
     <div className="flex w-full h-16 items-center bg-[#121418] p-4">
       <button
