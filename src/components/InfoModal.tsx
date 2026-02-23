@@ -1,6 +1,6 @@
 import { FaTimes, FaStar, FaUser, FaTag, FaCalendar, FaDownload } from "react-icons/fa";
 import Spinner from "./Spinner";
-import React from "react";
+// import * as backend from "../../wailsjs/go/app/App";
 
 export interface InfoData {
   title: string;
@@ -74,9 +74,9 @@ export default function AddonInfoModal({ info, onClose, onInstall, isInstalling 
                     a.url ? (
                       <span key={i}>
                         {i > 0 && ", "}
-                        <a className="text-[#d63c6a] hover:underline" href={a.url}>
+                        <button className="text-[#d63c6a] hover:underline" onClick={() => window.open(a.url, "_blank")}>
                           {a.name}
-                        </a>
+                        </button>
                       </span>
                     ) : (
                       <span key={i}>
