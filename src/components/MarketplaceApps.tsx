@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import AppComponent from "./AppComponent";
 import { FaDownload } from "react-icons/fa";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
@@ -62,7 +62,7 @@ export default function MarketplaceApps({
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver>(null);
 
   const fetchCommunityApps = async (loadMore = false) => {
     const targetPage = loadMore ? page + 1 : 1;
@@ -291,7 +291,7 @@ export default function MarketplaceApps({
     const activeContentTags = selectedTags.filter((t) => (contentTags as readonly string[]).includes(t));
     if (activeContentTags.length > 0) {
       result = result.filter(
-        ({ item }) => Array.isArray(item.tags) && activeContentTags.every((tag) => item.tags.some((tt) => tt.toLowerCase() === tag.toLowerCase())),
+        ({ item }) => Array.isArray(item.tags) && activeContentTags.every((tag) => item?.tags?.some((tt) => tt.toLowerCase() === tag.toLowerCase())),
       );
     }
     if (selectedTags.includes("Popular")) {
