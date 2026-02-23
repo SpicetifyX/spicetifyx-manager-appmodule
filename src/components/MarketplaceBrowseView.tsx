@@ -7,6 +7,7 @@ import Spinner from "./Spinner";
 import ErrorState from "./ErrorState";
 import LoadingState from "./LoadingState";
 import EmptyState from "./EmptyState";
+import React from "react"
 
 // Mock types
 type CardItem = any;
