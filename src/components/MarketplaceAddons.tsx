@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import Addon from "./Addon";
 import { FaDownload } from "react-icons/fa";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
@@ -7,7 +7,6 @@ import { get, post } from "../utils/api";
 import { fetchExtensionManifest, fetchCurated, getTaggedRepos } from "../utils/githubApi";
 
 
-// Mock types (adjust based on actual API response)
 type AddonInfo = {
   id: string;
   name: string;
@@ -296,7 +295,7 @@ export default function MarketplaceAddons({
     const activeContentTags = selectedTags.filter((t) => (contentTags as readonly string[]).includes(t));
     if (activeContentTags.length > 0) {
       result = result.filter(
-        ({ item }) => Array.isArray(item.tags) && activeContentTags.every((tag) => item.tags.some((tt) => tt.toLowerCase() === tag.toLowerCase())),
+        ({ item }) => Array.isArray(item.tags) && activeContentTags.every((tag) => item?.tags?.some((tt) => tt.toLowerCase() === tag.toLowerCase())),
       );
     }
     if (selectedTags.includes("Popular")) {
@@ -309,7 +308,7 @@ export default function MarketplaceAddons({
     return result;
   }, [communityExtensions, searchQuery, selectedTags]);
 
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver>(null);
   const lastAddonElementRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (communityLoading || loadingMore) return;
