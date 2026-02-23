@@ -61,7 +61,8 @@ export default function MarketplaceThemes({
       setError(null);
     }
     try {
-      await refreshThemes();
+      const fetchedThemes = await get("/themes"); // Assuming a /themes endpoint
+      setThemes(fetchedThemes);
     } catch (err: any) {
       if (!silent) setError(err.message || "Failed to fetch themes.");
       console.error("Error fetching themes:", err);
@@ -72,29 +73,8 @@ export default function MarketplaceThemes({
 
   // Sync from global context → local state + baseline / dirty check
   useEffect(() => {
-    if (!themesLoaded) return;
-    setThemes(contextThemes);
-    themesRef.current = contextThemes;
-    const activeTheme = contextThemes.find((t) => t.isActive);
-    const currentId = activeTheme?.id ?? "";
-    const currentScheme = activeTheme?.activeColorScheme ?? "";
-    if (captureBaselineRef.current) {
-      baselineRef.current = { activeThemeId: currentId, colorScheme: currentScheme, installedIds: contextThemes.map((t) => t.id) };
-      captureBaselineRef.current = false;
-      onDirtyChange(false);
-    } else if (baselineRef.current) {
-      const bl = baselineRef.current;
-      const baselineInstalled = new Set(bl.installedIds);
-      const installedNow = new Set(contextThemes.map((t) => t.id));
-      const isDirty =
-        currentId !== bl.activeThemeId ||
-        currentScheme !== bl.colorScheme ||
-        contextThemes.some((t) => !baselineInstalled.has(t.id)) ||
-        bl.installedIds.some((id) => !installedNow.has(id));
-      onDirtyChange(isDirty);
-    }
-    setLoading(false);
-  }, [contextThemes, themesLoaded]);
+    fetchThemes();
+  }, []);
 
   useEffect(() => {
     if (browsingContent) {
@@ -126,7 +106,7 @@ export default function MarketplaceThemes({
     const { activeThemeId, colorScheme, installedIds } = baselineRef.current;
     (async () => {
       try {
-        // const current = await backend.GetSpicetifyThemes();
+        // const current = await backend.GetSpicetifyThemes(); // This will be replaced later
         // const baselineInstalled = new Set(installedIds);
         // // Delete themes that were installed after the baseline was captured
         // for (const theme of current) {
@@ -135,14 +115,14 @@ export default function MarketplaceThemes({
         //   }
         // }
         // // Re-fetch after deletions to restore active theme / color scheme
-        // const afterDelete = await backend.GetSpicetifyThemes();
+        // const afterDelete = await backend.GetSpicetifyThemes(); // This will be replaced later
         // const activeTheme = afterDelete.find((t) => t.isActive);
         // const currentId = activeTheme?.id ?? "";
         // const currentScheme = activeTheme?.activeColorScheme ?? "";
         // if (currentId !== activeThemeId) {
-        //   if (activeThemeId) await backend.ApplySpicetifyTheme(activeThemeId);
+        //   if (activeThemeId) await backend.ApplySpicetifyTheme(activeThemeId); // This will be replaced later
         // } else if (currentScheme !== colorScheme) {
-        //   await backend.SetColorScheme(activeThemeId, colorScheme);
+        //   await backend.SetColorScheme(activeThemeId, colorScheme); // This will be replaced later
         // }
         // await fetchThemes(true);
       } catch (err) {
@@ -154,11 +134,12 @@ export default function MarketplaceThemes({
   const handleSelectTheme = async (themeId: string) => {
     setApplyingThemeId(themeId);
     try {
-      // const success = await backend.ApplySpicetifyTheme(themeId);
-      // if (!success) {
-      //   alert(`Failed to apply theme: ${themeId}`);
-      // }
-      fetchThemes(true);
+      const response = await post("/applyTheme", { themeId });
+      if (response.success) {
+        fetchThemes(true);
+      } else {
+        alert(`Failed to apply theme: ${themeId}`);
+      }
     } catch (err: any) {
       console.error(`Error applying theme ${themeId}:`, err);
       alert(`Error applying theme: ${err.message}`);
@@ -177,13 +158,13 @@ export default function MarketplaceThemes({
     const { id: themeId, name: themeName } = pendingDelete;
     setPendingDelete(null);
     try {
-      // const success = await backend.DeleteSpicetifyTheme(themeId);
-      // if (success) {
-      //   fetchThemes(true);
-      //   setCommunityThemes((prev) => prev.map((t) => (t.title === themeName ? { ...t, installed: false } : t)));
-      // } else {
-      //   alert(`Failed to delete theme: ${themeName}`);
-      // }
+      const response = await post("/deleteTheme", { themeId });
+      if (response.success) {
+        fetchThemes(true);
+        setCommunityThemes((prev) => prev.map((t) => (t.title === themeName ? { ...t, installed: false } : t)));
+      } else {
+        alert(`Failed to delete theme: ${themeName}`);
+      }
     } catch (err: any) {
       alert(`Error deleting theme: ${err.message}`);
     }
@@ -203,13 +184,13 @@ export default function MarketplaceThemes({
         tags: ext.tags,
         stars: ext.stargazers_count,
       };
-      // const success = await backend.InstallMarketplaceTheme(themeId, ext.cssURL!, ext.schemesURL || "", ext.include || [], meta as any);
-      // if (success) {
-      //   setCommunityThemes((prev) => prev.map((e, i) => (i === index ? { ...e, installed: true } : e)));
-      //   fetchThemes(true);
-      // } else {
-      //   alert(`Failed to install ${ext.title}`);
-      // }
+      const response = await post("/installMarketplaceTheme", { themeId, cssURL: ext.cssURL, schemesURL: ext.schemesURL, include: ext.include, meta: JSON.stringify(meta) });
+      if (response.message) {
+        setCommunityThemes((prev) => prev.map((e, i) => (i === index ? { ...e, installed: true } : e)));
+        fetchThemes(true);
+      } else {
+        alert(`Failed to install ${ext.title}`);
+      }
     } catch (err: any) {
       alert(`Error installing ${ext.title}: ${err.message}`);
     } finally {
