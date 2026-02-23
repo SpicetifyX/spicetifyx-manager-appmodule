@@ -1,4 +1,5 @@
 import { FaDownload, FaInfoCircle } from "react-icons/fa";
+import React from "react"
 // import { CardItem } from "../utils/marketplace-types";
 import Spinner from "./Spinner";
 
