@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Spinner from "./Spinner";
 import { FaTrash, FaInfoCircle } from "react-icons/fa";
 import InfoModal, { InfoData } from "./InfoModal";
