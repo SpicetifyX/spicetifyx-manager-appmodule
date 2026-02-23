@@ -19,9 +19,9 @@ export default function App() {
   return (
     <>
       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-      <div className="flex h-full w-full flex-col">
+      <div className="relative flex h-full w-full flex-col">
         <Topbar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="relative flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden flex flex-col">
             {activeTab === "dashboard" && <Dashboard onNavigate={setActiveTab} />}
             {activeTab.includes("addons") && (
