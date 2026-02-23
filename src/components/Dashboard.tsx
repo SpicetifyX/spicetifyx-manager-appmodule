@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaSync, FaCheckCircle, FaExclamationTriangle, FaPuzzlePiece, FaPalette, FaAppStore, FaChevronRight, FaRocket } from "react-icons/fa";
-import { get } from "../utils/api";
+import { get, post } from "../utils/api";
+import { useSpicetify } from "../context/SpicetifyContext"; // Import useSpicetify
 
 type InstallStatus = {
   spotify: boolean;
@@ -13,8 +14,10 @@ export default function Dashboard({
 }: {
   onNavigate?: (tab: string) => void;
 }) {
+  const { extensions, themes, apps, spotifyVersion, spicetifyVersion, extensionsLoaded, themesLoaded, appsLoaded, refreshAll } = useSpicetify(); // Use context
+
   const [installStatus, setInstallStatus] = useState<InstallStatus | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingInitialStatus, setLoadingInitialStatus] = useState(true); // Separate loading for install status
   const [showReloadModal, setShowReloadModal] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
 
@@ -26,7 +29,7 @@ export default function Dashboard({
       } catch (error) {
         console.error("Failed to fetch installation status:", error);
       } finally {
-        setLoading(false);
+        setLoadingInitialStatus(false);
       }
     }
     fetchInstallStatus();
@@ -36,7 +39,8 @@ export default function Dashboard({
   const handleReload = async () => {
     setIsReloading(true);
     try {
-      // await post("/reload");
+      await post("/apply", {}); // Assuming apply also reloads Spicetify
+      refreshAll(); // Refresh all data in context
     } catch (err) {
       console.error("Reload failed:", err);
     } finally {
@@ -44,17 +48,13 @@ export default function Dashboard({
     }
   };
 
-  const extensions: any[] = [];
-  const themes: any[] = [];
-  const apps: any[] = [];
-  const spotifyVersion = "1.2.3";
-  const spicetifyVersion = "2.10.0";
-
+  // Use context values for counts and active states
   const extensionsCount = extensions.length;
   const activeExtensions = extensions.filter((ext) => ext.isEnabled).length;
   const themesCount = themes.length;
   const appsCount = apps.length;
   const activeApps = apps.filter((a) => a.isEnabled).length;
+  const loading = !extensionsLoaded || !themesLoaded || !appsLoaded || loadingInitialStatus;
 
 
   if (loading) {
