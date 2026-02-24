@@ -1,21 +1,14 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-// import { ThemeInfo } from "../types/theme.d";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import Theme from "./Theme";
 import { FaDownload } from "react-icons/fa";
-// import { fetchThemeManifest, fetchCurated, getTaggedRepos } from "../utils/fetchRemotes";
-// import { CardItem } from "../utils/marketplace-types";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
-// import * as backend from "../../wailsjs/go/app/App";
-// import { useSpicetify } from "../context/SpicetifyContext";
 import MarketplaceBrowseView from "./MarketplaceBrowseView";
+import { get, post } from "../utils/api";
 
-// Mock types
 type ThemeInfo = any;
 type CardItem = any;
 
-
 export default function MarketplaceThemes({
-  onDirtyChange,
   resetKey,
   snapshotKey,
 }: {
@@ -23,10 +16,8 @@ export default function MarketplaceThemes({
   resetKey: number;
   snapshotKey: number;
 }) {
-  // const { themes: contextThemes, themesLoaded, refreshThemes } = useSpicetify();
   const contextThemes: ThemeInfo[] = [];
   const themesLoaded = true;
-  const refreshThemes = async () => {};
 
   const [themes, setThemes] = useState<ThemeInfo[]>(contextThemes);
   const [loading, setLoading] = useState(!themesLoaded);
@@ -184,7 +175,13 @@ export default function MarketplaceThemes({
         tags: ext.tags,
         stars: ext.stargazers_count,
       };
-      const response = await post("/installMarketplaceTheme", { themeId, cssURL: ext.cssURL, schemesURL: ext.schemesURL, include: ext.include, meta: JSON.stringify(meta) });
+      const response = await post("/installMarketplaceTheme", {
+        themeId,
+        cssURL: ext.cssURL,
+        schemesURL: ext.schemesURL,
+        include: ext.include,
+        meta: JSON.stringify(meta),
+      });
       if (response.message) {
         setCommunityThemes((prev) => prev.map((e, i) => (i === index ? { ...e, installed: true } : e)));
         fetchThemes(true);
