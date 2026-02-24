@@ -1,5 +1,5 @@
 import Spinner from "./Spinner";
-import React from "react"
+import React from "react";
 
 interface Props {
   label?: string;
