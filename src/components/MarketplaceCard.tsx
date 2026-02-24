@@ -1,5 +1,5 @@
 import { FaDownload, FaInfoCircle } from "react-icons/fa";
-import React from "react"
+import React from "react";
 // import { CardItem } from "../utils/marketplace-types";
 import Spinner from "./Spinner";
 
@@ -20,8 +20,9 @@ export default function MarketplaceCard({ item, isInstalling, onInstall, onInfo,
   return (
     <div
       ref={containerRef}
-      className={`group relative flex h-64 max-h-64 w-full flex-col overflow-hidden rounded-lg border ${item.installed ? "border-[#d63c6a]" : "border-[#2a2a2a]"
-        } bg-[#121418] transition`}
+      className={`group relative flex h-64 max-h-64 w-full flex-col overflow-hidden rounded-lg border ${
+        item.installed ? "border-[#d63c6a]" : "border-[#2a2a2a]"
+      } bg-[#121418] transition`}
     >
       {hasImage ? (
         <div className="relative min-h-0 flex-1 overflow-hidden rounded-t-lg">
