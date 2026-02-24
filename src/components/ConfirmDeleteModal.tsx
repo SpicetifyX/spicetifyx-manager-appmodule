@@ -1,5 +1,5 @@
 import { FaTrashAlt } from "react-icons/fa";
-import React from "react"
+import React from "react";
 
 interface ConfirmDeleteModalProps {
   show: boolean;
