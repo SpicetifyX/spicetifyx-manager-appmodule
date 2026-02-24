@@ -51,15 +51,9 @@ function MainAppContent() {
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden flex flex-col">
             {activeTab === "dashboard" && <Dashboard onNavigate={setActiveTab} />}
-            {activeTab === "addons" && (
-              <MarketplaceAddons onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />
-            )}
-            {activeTab === "themes" && (
-              <MarketplaceThemes onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />
-            )}
-            {activeTab === "apps" && (
-              <MarketplaceApps onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />
-            )}
+            {activeTab === "addons" && <MarketplaceAddons onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />}
+            {activeTab === "themes" && <MarketplaceThemes onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />}
+            {activeTab === "apps" && <MarketplaceApps onDirtyChange={handleDirtyChange} resetKey={resetKey} snapshotKey={snapshotKey} />}
             {activeTab === "settings" && <Settings />}
           </div>
         </div>
@@ -67,8 +61,12 @@ function MainAppContent() {
           <div className="flex w-full justify-between p-4 bg-gray-800 text-white">
             <span>You have pending changes.</span>
             <div>
-              <button onClick={handleReset} className="mr-2 px-3 py-1 bg-gray-600 rounded">Reset</button>
-              <button onClick={handleApply} className="px-3 py-1 bg-blue-600 rounded">Apply</button>
+              <button onClick={handleReset} className="mr-2 px-3 py-1 bg-gray-600 rounded">
+                Reset
+              </button>
+              <button onClick={handleApply} className="px-3 py-1 bg-blue-600 rounded">
+                Apply
+              </button>
             </div>
           </div>
         )}
