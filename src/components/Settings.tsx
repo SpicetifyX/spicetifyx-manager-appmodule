@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { FaDiscord, FaFolder, FaTrashAlt, FaExternalLinkAlt, FaGithub } from "react-icons/fa";
 import { get, post } from "../utils/api";
 
@@ -140,8 +140,9 @@ export default function Settings() {
               </div>
               <button
                 onClick={handleClearCache}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${cacheCleared ? "bg-green-600 text-white" : "bg-[#2a2a2a] text-white hover:bg-[#3a3a3a] active:scale-95"
-                  }`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                  cacheCleared ? "bg-green-600 text-white" : "bg-[#2a2a2a] text-white hover:bg-[#3a3a3a] active:scale-95"
+                }`}
               >
                 <FaTrashAlt className="h-3 w-3" />
                 {cacheCleared ? "Cleared!" : "Clear Cache"}
@@ -218,16 +219,20 @@ function ToggleSetting({
   return (
     <div className="flex items-center justify-between rounded-lg bg-[#0a0c0f] p-3">
       <div className="mr-4">
-        <p className="text-sm font-medium text-white">Change to the new code</p>
-        <p className="text-xs text-[#666]">Force re-fetch all community data on next browse</p>
+        <p className="text-sm font-medium text-white">{label}</p>
+        <p className="text-xs text-[#666]">{description}</p>
       </div>
       <button
-        onClick={handleClearCache}
-        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${cacheCleared ? "bg-green-600 text-white" : "bg-[#2a2a2a] text-white hover:bg-[#3a3a3a] active:scale-95"
-          }`}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+          checked ? "bg-[#d63c6a]" : "bg-[#2a2a2a]"
+        }`}
       >
-        <FaTrashAlt className="h-3 w-3" />
-        {cacheCleared ? "Cleared!" : "Clear Cache"}
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+            checked ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
       </button>
     </div>
   );
