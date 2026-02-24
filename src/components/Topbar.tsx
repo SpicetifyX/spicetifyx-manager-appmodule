@@ -4,7 +4,6 @@ import { FaAppStore, FaCog, FaFlag, FaHome, FaPalette, FaPuzzlePiece } from "rea
 export default function Topbar({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: (tab: string) => void }) {
   useEffect(() => {
     const el = document.querySelector(".main-topBar-container") as HTMLElement;
-    console.log(el);
     if (el) {
       el.style.position = "relative";
       el.style.height = "0px";
